@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css" />
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+</head>
+<body>
+
+    <div ng-controller="mainCtrl" class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-lg-6">
+                     
+                        <h3>New measurement [post('/measurements')]</h3>
+                        <hr >
+                        <div class="row" style="width: 700px; padding-bottom: 5px">
+                                <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="temperature" ng-model="data.temperature"/></div>
+                                <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="dewpoint" ng-model="data.dewPoint"/></div>
+                                <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="precipitation" ng-model="data.precipitation"/></div>
+                                <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="text" placeholder="timestamp" ng-model="data.timestamp"/></div>
+            
+                        </div>
+                        <button ng-click="addMeasurement()" class="btn btn-primary">add measurement</button>
+                        
+                        <br />
+                        <br />
+                        <br />
+                        <h3 >Retrieve by timestamp or date [get('/measurements/:timestamp')]</h3>
+                        <hr >
+                        <div style="width: 700px; padding-bottom: 5px" ><input class="form-control" type="text" placeholder="timestamp" ng-model="data.timestamp"/></div>
+                        <button ng-click="serachByTSorDate()" class="btn btn-primary">search by timestamp or date</button>
+
+
+                        <br />
+                        <br />
+                        <br />
+                        <h3 >Replace measurement by timestamp [put('/measurements/:timestamp')]</h3>
+                        <hr >
+                        <div class="row" style="width: 700px; padding-bottom: 5px">
+                            <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="temperature" ng-model="data.temperature"/></div>
+                            <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="dewpoint" ng-model="data.dewPoint"/></div>
+                            <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="number" placeholder="precipitation" ng-model="data.precipitation"/></div>
+                            <div class="col-lg-3 " style="padding-right: 5px"><input class="form-control" type="text" placeholder="timestamp" ng-model="data.timestamp"/></div>
+        
+                    </div>
+
+                        <button ng-click="replaceMeasurement()" class="btn btn-primary">replace measurement</button>
+
+                </div>
+
+                <div class="col-lg-6" style="padding-left:30px;border-left: 6px solid blue;">
+                        
+                        <h3 style="color: blue">Results</h3>
+                        <div class="row" style="font-weight: bold; width: 900px;">
+                            <div class="col-lg-3">Timestamp</div>
+                            <div class="col-lg-3">temperature</div>
+                            <div class="col-lg-3">Dew point</div>
+                            <div class="col-lg-3">Precipitation</div>
+                        </div>
+            
+                        
+                        <div class="row" ng-repeat="t in measurements" style="width: 900px;">
+                                <div class="col-lg-3">{{ t.timestamp }}</div>
+                                <div class="col-lg-3">{{ t.temperature }}</div>
+                                <div class="col-lg-3">{{ t.dewPoint }}</div>
+                                <div class="col-lg-3">{{ t.precipitation }}</div>
+                        </div>
+
+                </div>
+                   
+
+        
+
+
+            </div>
+
+
+    </div>
+
+
+
+<script type="text/javascript">
+
+var app = angular.module('app', []);
+
+app.controller('mainCtrl', ['$scope','$http', function($scope, $http){
+
+    $scope.data = {};
+    $scope.data.temperature ; 
+    $scope.data.dewPoint;
+    $scope.data.precipitation;
+    $scope.data.timestamp;
+
+    $scope.measurements = [];
+       
+       
+       $scope.test = "test";
+
+       $scope.addMeasurement = function(){
+            $http.post('/measurements', $scope.data).then(function(data){
+                $scope.getAllMeasurements();
+            }, function(){
+
+            });
+       }
+
+       $scope.replaceMeasurement = function(){
+
+        $http.put(`/measurements/${$scope.data.timestamp}`, $scope.data).then(function(data){
+                $scope.getAllMeasurements();
+            }, function(){
+
+            });  
+
+       }
+
+       $scope.getAllMeasurements = function(){
+
+            $http.get('/all', $scope.data).then(function(data){
+               console.log(data.data)
+               $scope.measurements = data.data;
+
+            }, function(){
+
+            });
+       }
+       $scope.getAllMeasurements();
+
+       $scope.serachByTSorDate = function(){
+
+        $http.get(`/measurements/${$scope.data.timestamp}`).then(function(data){
+               console.log(data.data);
+
+                if(_.isArray(data.data)){
+                    $scope.measurements = data.data;
+                }else{
+                    $scope.measurements = [];
+                    $scope.measurements[0] = data.data; 
+                }
+               
+
+            }, function(){
+
+            });
+
+       }
+
+}]);
+
+
+</script>
+
+</body>
+</html>

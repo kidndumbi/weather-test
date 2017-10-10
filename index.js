@@ -11,7 +11,7 @@ app.use(bodyParser.json()); // Body parser use JSON data
 
 app.get('/', (req, res) => {
 
-        res.send(m.getAll());
+    res.sendFile(`${__dirname}/index.html`);
 });
 
 app.post('/measurements', (req, res) => {
@@ -23,21 +23,69 @@ app.post('/measurements', (req, res) => {
 
 });
 
+//get measurements by timestamp or date
 app.get('/measurements/:timestamp', (req, res) => {
 
-         m.find(req.params.timestamp).then((data) => {
+         m.findOne(req.params.timestamp).then((data) => {
             res.send(data);
          }, () =>{  res.status(404).send('Data not found! 404')  });
   
 });
 
-// app.get('/measurements/:date', (req, res) => {
-    
-//              m.findAll(req.params.date).then((data) => {
-//                 res.send(data);
-//              }, () =>{  res.status(404).send('Data not found! 404')  });
+
+//replace a measurement
+app.put('/measurements/:timestamp', (req, res) => {
+
+      m.replace(req.params.timestamp, req.body).then(() => {
+          
+          res.send('success!');
+       
+      }, (error) => {
+             if(error === "misMatch"){
+                res.status(409).send('timestamp mismatch! 409')
+             }
+             if(error === "Does not exist"){
+                res.status(404).send('Does not exist! 404')
+             }
+             if(error === "Invalid value"){
+                res.status(400).send('Invalid value! 400')
+             }
+
+      })
       
-//     });
+});
+
+//update values in particular measurement
+app.patch('/measurements/:timestamp', (req, res) => {
+    
+      
+      
+});
+
+//delete a measurement
+app.delete('/measurements/:timestamp', (req, res) => {
+    
+      
+      
+});
+
+//compute statistics
+app.get('/stats', (req, res) => {
+    
+      
+      
+});
+
+
+app.get('/all', (req, res) => {
+    
+      res.send(m.getAll());
+      
+});
+
+
+
+
 
 const PORT = process.env.PORT || 4119
 app.listen(PORT, () => {
