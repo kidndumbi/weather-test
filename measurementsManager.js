@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const measurement = require("./measurementModel");
-
+const statsManager = require("./statsManager");
 module.exports = class MeasurementsManager {
 
     constructor() {
@@ -8,9 +8,9 @@ module.exports = class MeasurementsManager {
          this.measurements = [];
 
         //initial data, will be removed later
-         this.measurements.push(new measurement(43.55, 69.55, 63.56, "2015-09-01T16:00:00.000Z"))
+         this.measurements.push(new measurement(43.55, 69.55, 63.56, "2015-05-01T16:00:00.000Z"))
          this.measurements.push(new measurement(64.55, 67.55, 53.56, "2015-09-01T16:10:00.000Z"))
-         this.measurements.push(new measurement(23.55, 68.56, 13.56, "2015-09-02T16:00:00.000Z"))
+         this.measurements.push(new measurement(23.55, 68.56, 13.56, "2015-11-02T16:00:00.000Z"))
 
     }
 
@@ -155,8 +155,47 @@ module.exports = class MeasurementsManager {
   
     }
 
-    stats(stat, metric,fromDateTime, toDateTime ){
-        
+    compute(params){
+
+         const SM = new statsManager();
+
+         let promise = new Promise((resolve, reject) => {
+             
+                     let data = [];
+            
+                     data = this.getDataIndateRage(params.fromDateTime, params.toDateTime);
+            
+                     if(data.length > 0){
+            
+                        let finalData =  SM.parseData(data, params.stat, params.metric);
+
+                        resolve(finalData);
+
+                     }else{
+                         reject('no data in date range');
+                     }
+
+         });
+
+         return promise;
+
+    }
+
+    getDataIndateRage(fromDateTime, toDateTime){
+                
+        let from = new Date(fromDateTime);
+        let to = new Date(toDateTime);
+
+        let result = [];
+
+        result = this.measurements.filter((m) => {
+
+            let check =  new Date(m.timestamp);
+            return   (check.getTime() <= to.getTime() && check.getTime() >= from.getTime()) ;
+        });
+
+        return result;
+
     }
 
 

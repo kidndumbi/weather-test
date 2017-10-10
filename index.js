@@ -95,8 +95,12 @@ app.delete('/measurements/:timestamp', (req, res) => {
 
 //compute statistics
 app.get('/stats', (req, res) => {
-    
-      
+
+      m.compute(req.query).then((data) => {
+          res.send(data);
+      }, () => {
+          
+      })
       
 });
 
