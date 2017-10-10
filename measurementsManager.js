@@ -65,10 +65,6 @@ module.exports = class MeasurementsManager {
 
     replace(timestamp, measure){
 
-        console.log(timestamp);
-        console.log(measure);
-        //test
-
        let promise = new Promise((resolve, reject) => {
 
         if(timestamp !== measure.timestamp){
@@ -82,15 +78,8 @@ module.exports = class MeasurementsManager {
         let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
 
         if(index > -1){
-           
-            console.log("index found", index);
-            console.log("item found");
-            console.log(this.measurements[index]);
-
+  
           this.measurements[index] = new measurement(measure.temperature, measure.dewPoint, measure.precipitation, measure.timestamp);
-
-          console.log("item after attempted update");
-          console.log(this.measurements[index]);
 
           resolve();
 
@@ -104,14 +93,66 @@ module.exports = class MeasurementsManager {
   
     }
 
-    update(timestamp){
+    update(timestamp, measure){
 
+          let promise = new Promise((resolve, reject) => {
+                   
+            if(timestamp !== measure.timestamp){
+                reject("misMatch");
+            } 
 
+            if(measure.temperature){
+                if(!_.isNumber(measure.temperature))
+                reject("Invalid value");
+            }
+            if(measure.dewPoint){
+                if(!_.isNumber(measure.dewPoint))
+                reject("Invalid value");
+            }
+            if(measure.precipitation){
+                if(!_.isNumber(measure.precipitation))
+                reject("Invalid value");
+            }
+               
+            let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
+            
+            if(index > -1){
+                
+                if(measure.temperature)
+                   this.measurements[index].temperature = measure.temperature;
+                if(measure.dewPoint)
+                   this.measurements[index].dewPoint = measure.dewPoint;
+                if(measure.precipitation)
+                   this.measurements[index].precipitation = measure.precipitation;
+              
+                resolve();
+              
+                }else{
+                    reject("Does not exist");
+                }
+               
+          });
+
+          return promise;
         
     }
 
     delete(timestamp){
-        
+
+        let promise = new Promise((resolve, reject) => {
+                
+            let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
+            
+                if(index > -1){ 
+                    this.measurements.splice(index, 1);
+                    resolve();
+                }else{
+                    reject("Does not exist");
+                 }
+        });
+
+        return promise;
+  
     }
 
     stats(stat, metric,fromDateTime, toDateTime ){

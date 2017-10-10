@@ -122,6 +122,16 @@ app.controller('mainCtrl', ['$scope','$http', function($scope, $http){
 
        }
 
+       $scope.updateMeasurement = function(){
+
+        $http.patch(`/measurements/${$scope.data.timestamp}`, $scope.data).then(function(data){
+                $scope.getAllMeasurements();
+            }, function(){
+
+            });  
+
+       }
+
        $scope.getAllMeasurements = function(){
 
             $http.get('/all', $scope.data).then(function(data){

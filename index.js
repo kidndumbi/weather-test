@@ -57,15 +57,39 @@ app.put('/measurements/:timestamp', (req, res) => {
 
 //update values in particular measurement
 app.patch('/measurements/:timestamp', (req, res) => {
-    
-      
+ 
+      m.update(req.params.timestamp, req.body).then(() => {
+
+        res.send('success!');
+
+      }, (error) => {
+
+        if(error === "misMatch"){
+            res.status(409).send('timestamp mismatch! 409')
+         }
+         if(error === "Does not exist"){
+            res.status(404).send('Does not exist! 404')
+         }
+         if(error === "Invalid value"){
+            res.status(400).send('Invalid value! 400')
+         }
+
+      })
       
 });
 
 //delete a measurement
 app.delete('/measurements/:timestamp', (req, res) => {
     
-      
+      m.delete(req.params.timestamp).then(() => {
+          
+        res.send('success!');
+
+      }, (error) => {
+        if(error === "Does not exist"){
+            res.status(404).send('Does not exist! 404')
+         }
+      })
       
 });
 
