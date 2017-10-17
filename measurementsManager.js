@@ -1,22 +1,25 @@
 const _ = require('lodash');
 const measurement = require("./measurementModel");
 const statsManager = require("./statsManager");
+
+const _measurements = Symbol('action');
+
 module.exports = class MeasurementsManager {
 
     constructor() {
    
-         this.measurements = [];
+         this[_measurements] = [];
 
         //initial data, will be removed later
-         this.measurements.push(new measurement(43.55, 69.55, 63.56, "2015-05-01T16:00:00.000Z"))
-         this.measurements.push(new measurement(64.55, 67.55, 53.56, "2015-09-01T16:10:00.000Z"))
-         this.measurements.push(new measurement(23.55, 68.56, 13.56, "2015-11-02T16:00:00.000Z"))
+        this[_measurements].push(new measurement(43.55, 69.55, 63.56, "2015-05-01T16:00:00.000Z"))
+        this[_measurements].push(new measurement(64.55, 67.55, 53.56, "2015-09-01T16:10:00.000Z"))
+        this[_measurements].push(new measurement(23.55, 68.56, 13.56, "2015-11-02T16:00:00.000Z"))
 
     }
 
     save(temperature, dewPoint, precipitation, timestamp) {
 
-        this.measurements.push(new measurement(temperature, dewPoint, precipitation, timestamp))
+        this[_measurements].push(new measurement(temperature, dewPoint, precipitation, timestamp))
         //test push
     }
 
@@ -27,13 +30,13 @@ module.exports = class MeasurementsManager {
 
         if(strLength === 10){
            
-            data =  this.measurements.filter((m) => {
+            data =  this[_measurements].filter((m) => {
                 return timestamp === m.timestamp.substring(0, 10);
             });
 
         }else{
            
-            data =  this.measurements.filter((m) => {
+            data =  this[_measurements].filter((m) => {
                 return timestamp === m.timestamp
             });
         }
@@ -60,7 +63,7 @@ module.exports = class MeasurementsManager {
     
  
     getAll(timestamp) {
-        return this.measurements;
+        return this[_measurements];
     }
 
     replace(timestamp, measure){
@@ -75,11 +78,11 @@ module.exports = class MeasurementsManager {
             reject("Invalid value");
         }
 
-        let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
+        let index = _.findIndex(this[_measurements], ['timestamp', timestamp]);
 
         if(index > -1){
   
-          this.measurements[index] = new measurement(measure.temperature, measure.dewPoint, measure.precipitation, measure.timestamp);
+            this[_measurements][index] = new measurement(measure.temperature, measure.dewPoint, measure.precipitation, measure.timestamp);
 
           resolve();
 
@@ -114,16 +117,16 @@ module.exports = class MeasurementsManager {
                 reject("Invalid value");
             }
                
-            let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
+            let index = _.findIndex(this[_measurements], ['timestamp', timestamp]);
             
             if(index > -1){
                 
                 if(measure.temperature)
-                   this.measurements[index].temperature = measure.temperature;
+                this[_measurements][index].temperature = measure.temperature;
                 if(measure.dewPoint)
-                   this.measurements[index].dewPoint = measure.dewPoint;
+                this[_measurements][index].dewPoint = measure.dewPoint;
                 if(measure.precipitation)
-                   this.measurements[index].precipitation = measure.precipitation;
+                this[_measurements][index].precipitation = measure.precipitation;
               
                 resolve();
               
@@ -141,10 +144,10 @@ module.exports = class MeasurementsManager {
 
         let promise = new Promise((resolve, reject) => {
                 
-            let index = _.findIndex(this.measurements, ['timestamp', timestamp]);
+            let index = _.findIndex(this[_measurements], ['timestamp', timestamp]);
             
                 if(index > -1){ 
-                    this.measurements.splice(index, 1);
+                    this[_measurements].splice(index, 1);
                     resolve();
                 }else{
                     reject("Does not exist");
@@ -188,7 +191,7 @@ module.exports = class MeasurementsManager {
 
         let result = [];
 
-        result = this.measurements.filter((m) => {
+        result = this[_measurements].filter((m) => {
 
             let check =  new Date(m.timestamp);
             return   (check.getTime() <= to.getTime() && check.getTime() >= from.getTime()) ;
