@@ -117,11 +117,19 @@ app.get('/all', (req, res) => {
 });
 
 
+let userPort;
+let userHost;
+
+if (process.argv.indexOf('--port') > -1)
+     userPort = process.argv[process.argv.indexOf('--port') + 1]
+if (process.argv.indexOf('--host') > -1)
+     userHost = process.argv[process.argv.indexOf('--host') + 1]
 
 
+const PORT = process.env.PORT || userPort || 4119
+const HOST = userHost || 'localhost';
 
-const PORT = process.env.PORT || 4119
-app.listen(PORT, () => {
+app.listen(PORT,HOST, () => {
    
     console.log(`connected to port ${PORT}`);
 
