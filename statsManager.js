@@ -6,17 +6,13 @@ module.exports = class statsManager {
 
         this.metric = [];
         this.stat = [];
-        //this.fromDateTime  = "";
-        //this.toDateTime = "";
     }
 
     getMin(data, metric){
 
         let result = 0;
 
-        result = _.min(data.map((d) => { return d[metric];}));
-
-        console.log(result);
+        result = _.min(data.map((d) => { return d[metric];}).filter((d) =>{ return d }));
 
         return result;
 
@@ -27,9 +23,6 @@ module.exports = class statsManager {
         let result = 0;
         
         result = _.max(data.map((d) => { return d[metric];}));
-        
-        console.log(result);
-        
         return result;
 
     }
@@ -43,18 +36,15 @@ module.exports = class statsManager {
 
         trimmed = data.map((d) => { return d[metric];});
         sum = trimmed.reduce(function(a, b) { return a + b; })
-        console.log(sum);
         avg = sum / trimmed.length;
 
         return avg;
 
     }
+    
 
+    //set metric and stat properties.
     parseData(data, stat, metric){
-
-        console.log(data);
-        console.log(metric);
-        console.log(stat);
 
         if(metric){
             if(_.isArray(metric)){
@@ -78,6 +68,7 @@ module.exports = class statsManager {
 
     }
 
+    //build report based on supplie params from frontend
     buildReport(dateRangeData){
 
            let data = [];
